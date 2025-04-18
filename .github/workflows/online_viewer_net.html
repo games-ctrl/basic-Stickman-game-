@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Çöp Adam Oyunu</title>
+  <style>
+    body {
+      margin: 0;
+      background: #00ff00;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    canvas {
+      background: #aaddaa;
+      border: 2px solid black;
+    }
+    #controls {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      background-color: #333;
+      color: white;
+    }
+    button:active {
+      background-color: #555;
+    }
+    #menu {
+      display: block;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #gameCanvas {
+      display: none; /* Oyun başlangıcında gizle */
+    }
+  </style>
+</head>
+<body>
+
+<!-- Menü -->
+<div id="menu">
+  <button id="startBtn">Oyun Başlat</button>
+  <button id="cosmeticsBtn">Kozmetikler</button>
+</div>
+
+<!-- Oyun -->
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<div id="controls">
+  <button id="leftBtn">◀️ Sol</button>
+  <button id="jumpBtn">⤴️ Zıpla</button>
+  <button id="rightBtn">▶️ Sağ</button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const menu = document.getElementById('menu');
+    const startBtn = document.getElementById('startBtn');
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
+    const jumpBtn = document.getElementById('jumpBtn');
+
+    let playerX = 100;
+    let playerY = 500;
+    let speedX = 0;
+    let speedY = 0;
+    let isJumping = false;
+
+    // Çöp adam çizme fonksiyonu
+    function drawCharacter() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Temizle
+
+      ctx.save();
+      ctx.translate(playerX, playerY); // Player X, Y pozisyonuna yerleştir
+
+      // Gövde
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, -50); // Gövde uzunluğu
+      ctx.stroke();
+
+      // Baş
+      ctx.beginPath();
+      ctx.arc(0, -60, 10, 0, Math.PI * 2); // Baş çapı
+      ctx.stroke();
+
+      // Kollar
+      ctx.beginPath();
+      ctx.moveTo(0, -40);
+      ctx.lineTo(-15, -30); // Sol kol
+      ctx.moveTo(0, -40);
+      ctx.lineTo(15, -30); // Sağ kol
+      ctx.stroke();
+
+      // Bacaklar
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-10, 20); // Sol bacak
+      ctx.moveTo(0, 0);
+      ctx.lineTo(10, 20); // Sağ bacak
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function gameLoop() {
+      playerX += speedX;
+      playerY += speedY;
+
+      // Yerçekimi
+      if (playerY < 500) {
+        speedY += 0.5; 
+      } else {
+        playerY = 500;
+        speedY = 0;
+        isJumping = false;
+      }
+
+      drawCharacter();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Butonlar
+    let leftPressed = false;
+    let rightPressed = false;
+
+    leftBtn.addEventListener('touchstart', () => { leftPressed = true; });
+    leftBtn.addEventListener('touchend', () => { leftPressed = false; });
+    rightBtn.addEventListener('touchstart', () => { rightPressed = true; });
+    rightBtn.addEventListener('touchend', () => { rightPressed = false; });
+    jumpBtn.addEventListener('touchstart', () => {
+      if (!isJumping) {
+        speedY = -10; // Zıplama gücü
+        isJumping = true;
+      }
+    });
+
+    leftBtn.addEventListener('mousedown', () => { leftPressed = true; });
+    leftBtn.addEventListener('mouseup', () => { leftPressed = false; });
+    rightBtn.addEventListener('mousedown', () => { rightPressed = true; });
+    rightBtn.addEventListener('mouseup', () => { rightPressed = false; });
+    jumpBtn.addEventListener('mousedown', () => {
+      if (!isJumping) {
+        speedY = -10; // Zıplama gücü
+        isJumping = true;
+      }
+    });
+
+    // Yön butonları
+    setInterval(() => {
+      if (leftPressed) {
+        speedX = -3; // Sol hareket
+      } else if (rightPressed) {
+        speedX = 3; // Sağ hareket
+      } else {
+        speedX = 0; // Hareket etmesin
+      }
+    }, 20);
+
+    // Oyun başlatma
+    startBtn.addEventListener('click', () => {
+      menu.style.display = 'none'; // Menü gizle
+      canvas.style.display = 'block'; // Oyun alanını göster
+      gameLoop(); // Oyun başlasın
+    });
+  });
+</script>
+
+</body>
+</html>
